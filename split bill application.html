@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SplitBill</title>
+
+  <!-- PWA theme colour -->
+  <meta name="theme-color" content="#7c6af7" />
+
+  <!-- iOS PWA tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SplitBill" />
+
+  <!-- Android -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="SplitBill" />
+
+  <style>
+    /* ── Variables ───────────────────────────────────────────────── */
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e42;
+      --accent: #7c6af7;
+      --accent-soft: #9d8fff;
+      --accent-glow: rgba(124, 106, 247, 0.18);
+      --danger: #f76a6a;
+      --danger-soft: #ff9494;
+      --success: #4ecb8e;
+      --warn: #f7c36a;
+      --text: #eeeef8;
+      --text-muted: #8888aa;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --t: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Reset ───────────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100dvh;
+      padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(80px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ──────────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 28px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--accent);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span {
+      color: var(--accent-soft);
+    }
+
+    /* ── Currency picker ─────────────────────────────────────────── */
+    .currency-picker {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .currency-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 7px;
+      transition: all var(--t);
+    }
+
+    .currency-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── Card ────────────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── Inputs ──────────────────────────────────────────────────── */
+    .input-group {
+      display: flex;
+      align-items: center;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      transition: border-color var(--t);
+    }
+
+    .input-group:focus-within {
+      border-color: var(--accent);
+    }
+
+    .input-prefix {
+      padding: 0 12px;
+      color: var(--accent-soft);
+      font-weight: 700;
+      font-size: 1.1rem;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 1.05rem;
+      padding: 13px 12px 13px 0;
+      width: 100%;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 18px;
+      transition: all var(--t);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-soft);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-ghost {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent-soft);
+    }
+
+    .btn-danger {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      transition: all var(--t);
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .btn-danger:hover {
+      background: rgba(247, 106, 106, 0.15);
+      color: var(--danger-soft);
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    /* ── Mode toggle ─────────────────────────────────────────────── */
+    .mode-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .mode-btn {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all var(--t);
+      text-align: center;
+    }
+
+    .mode-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent-soft);
+    }
+
+    /* ── People list ─────────────────────────────────────────────── */
+    .people-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .person-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideIn 0.25s var(--t) both;
+    }
+
+    .person-row .input-group {
+      flex: 1;
+    }
+
+    .person-row.removing {
+      animation: slideOut 0.2s var(--t) both;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    @keyframes slideOut {
+      to {
+        opacity: 0;
+        transform: translateX(20px);
+        height: 0;
+        margin: 0;
+        padding: 0
+      }
+    }
+
+    .person-amount-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-soft);
+      min-width: 60px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* ── Tip presets ─────────────────────────────────────────────── */
+    .tip-presets {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tip-preset-btn {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      flex: 1;
+      min-width: 60px;
+      padding: 9px 6px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: all var(--t);
+      text-align: center;
+    }
+
+    .tip-preset-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent-soft);
+    }
+
+    .tip-preset-btn:hover:not(.active) {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    /* ── Remaining bar ───────────────────────────────────────────── */
+    .remaining-bar {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      transition: border-color var(--t), background var(--t);
+    }
+
+    .remaining-bar.warn {
+      border-color: var(--warn);
+      background: rgba(247, 195, 106, 0.07);
+    }
+
+    .remaining-bar.ok {
+      border-color: var(--success);
+      background: rgba(78, 203, 142, 0.07);
+    }
+
+    .remaining-bar.over {
+      border-color: var(--danger);
+      background: rgba(247, 106, 106, 0.07);
+    }
+
+    .remaining-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .remaining-amounts {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .remaining-val {
+      color: var(--warn);
+    }
+
+    .remaining-val.ok {
+      color: var(--success);
+    }
+
+    .remaining-val.over {
+      color: var(--danger);
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--accent);
+      transition: width 0.3s var(--t), background var(--t);
+      max-width: 100%;
+    }
+
+    .progress-fill.ok {
+      background: var(--success);
+    }
+
+    .progress-fill.over {
+      background: var(--danger);
+    }
+
+    /* ── Results ─────────────────────────────────────────────────── */
+    .results-card {
+      display: none;
+      animation: fadeUp 0.3s var(--t) both;
+    }
+
+    .results-card.visible {
+      display: block;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .results-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .summary-stat {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+    }
+
+    .summary-stat .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    .summary-stat .stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent-soft);
+    }
+
+    .result-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 13px 15px;
+      animation: slideIn 0.25s var(--t) both;
+    }
+
+    .result-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .result-breakdown {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .result-amount {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--accent-soft);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* ── Toast ───────────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 10px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s var(--t);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 999;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 99px;
+    }
+
+    @media (max-width:420px) {
+      h1 {
+        font-size: 1.1rem;
+      }
+
+      .currency-btn {
+        padding: 4px 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🧾</div>
+        <h1>Split<span>Bill</span></h1>
+      </div>
+      <div class="currency-picker" role="group" aria-label="Currency">
+        <button class="currency-btn active" data-symbol="£">£</button>
+        <button class="currency-btn" data-symbol="$">$</button>
+        <button class="currency-btn" data-symbol="€">€</button>
+      </div>
+    </header>
+
+    <!-- Bill -->
+    <div class="card">
+      <div class="card-title">Total Bill</div>
+      <div class="input-group">
+        <span class="input-prefix currency-display">£</span>
+        <input type="number" id="billAmount" placeholder="0.00" min="0" step="0.01" inputmode="decimal"
+          aria-label="Total bill amount" />
+      </div>
+    </div>
+
+    <!-- Tip -->
+    <div class="card">
+      <div class="card-title">Tip</div>
+      <div class="tip-presets">
+        <button class="tip-preset-btn" data-tip="0">None</button>
+        <button class="tip-preset-btn" data-tip="10">10%</button>
+        <button class="tip-preset-btn" data-tip="15">15%</button>
+        <button class="tip-preset-btn" data-tip="20">20%</button>
+        <button class="tip-preset-btn" data-tip="custom">Custom</button>
+      </div>
+      <div class="input-group" id="customTipGroup" style="display:none;">
+        <span class="input-prefix">%</span>
+        <input type="number" id="customTipInput" placeholder="Enter %" min="0" max="100" inputmode="decimal"
+          aria-label="Custom tip percentage" />
+      </div>
+    </div>
+
+    <!-- People -->
+    <div class="card">
+      <div class="card-title">People</div>
+      <div class="mode-toggle" role="group" aria-label="Split mode">
+        <button class="mode-btn active" data-mode="even">⚖️ Even Split</button>
+        <button class="mode-btn" data-mode="custom">✏️ Custom Split</button>
+      </div>
+      <div class="people-list" id="peopleList"></div>
+      <button class="btn btn-ghost btn-full" id="addPersonBtn">+ Add Person</button>
+      <div class="remaining-bar" id="remainingBar" style="display:none;">
+        <div class="remaining-label">Amount assigned</div>
+        <div class="remaining-amounts">
+          <span id="assignedAmt">—</span><span>of</span><span id="totalWithTip">—</span>
+        </div>
+        <div class="remaining-label" style="margin-top:6px;">
+          Remaining: <span id="remainingAmt" class="remaining-val">—</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculate -->
+    <button class="btn btn-primary btn-full" id="calculateBtn" style="margin-bottom:14px;">Calculate Split</button>
+
+    <!-- Results -->
+    <div class="card results-card" id="resultsCard">
+      <div class="card-title">Results</div>
+      <div class="results-summary">
+        <div class="summary-stat">
+          <div class="stat-label">Total (inc. tip)</div>
+          <div class="stat-val" id="resTotalWithTip">—</div>
+        </div>
+        <div class="summary-stat">
+          <div class="stat-label">Tip Amount</div>
+          <div class="stat-val" id="resTipAmount">—</div>
+        </div>
+      </div>
+      <div class="result-rows" id="resultRows"></div>
+      <div class="divider"></div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="copyBtn" style="flex:1;">📋 Copy Results</button>
+        <button class="btn btn-ghost" id="resetBtn" style="flex:1;">🔄 Reset</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Install banner (Android Chrome) -->
+  <div id="installBanner"
+    style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:14px 20px calc(14px + env(safe-area-inset-bottom));align-items:center;justify-content:space-between;gap:12px;z-index:1000;box-shadow:0 -4px 24px rgba(0,0,0,0.4);">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div
+        style="width:36px;height:36px;background:var(--accent);border-radius:8px;display:grid;place-items:center;font-size:18px;">
+        🧾</div>
+      <div>
+        <div style="font-weight:700;font-size:0.9rem;">Add to Home Screen</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">Use SplitBill like a native app</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <button id="installDismiss"
+        style="background:var(--surface2);border:1.5px solid var(--border);color:var(--text-muted);border-radius:8px;padding:8px 14px;font-size:0.85rem;font-weight:600;cursor:pointer;">Later</button>
+      <button id="installAccept"
+        style="background:var(--accent);border:none;color:#fff;border-radius:8px;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;">Install</button>
+    </div>
+  </div>
+
+  <script>
+    /* ================================================================
+       PART 1 — PWA SETUP
+       Injects the manifest and service worker entirely from JS,
+       so this works as a single self-contained HTML file.
+    ================================================================ */
+
+    // ── Inject Web App Manifest ──────────────────────────────────────
+    // Normally this would be a separate manifest.json file, but we can
+    // encode it as a data URL and inject it via a <link> tag instead.
+    const manifestData = {
+      name: 'SplitBill Calculator',
+      short_name: 'SplitBill',
+      description: 'Split restaurant bills easily between friends',
+      start_url: location.href,   // works from any URL, including file://
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#0f0f13',
+      theme_color: '#7c6af7',
+      icons: [
+        // Inline SVG icon encoded as a data URL — no external image files needed
+        {
+          src: "data:image/svg+xml," + encodeURIComponent(`
+            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'>
+              <rect width='512' height='512' rx='100' fill='%237c6af7'/>
+              <rect x='140' y='100' width='232' height='290' rx='18' fill='white'/>
+              <polygon points='140,390 164,360 188,390 212,360 236,390 260,360 284,390 308,360 332,390 372,390 372,420 140,420' fill='%237c6af7'/>
+              <rect x='172' y='150' width='168' height='14' rx='7' fill='%23c4bdf9'/>
+              <rect x='172' y='184' width='128' height='14' rx='7' fill='%23c4bdf9'/>
+              <rect x='172' y='218' width='168' height='14' rx='7' fill='%23c4bdf9'/>
+              <rect x='172' y='252' width='100' height='14' rx='7' fill='%23c4bdf9'/>
+              <circle cx='196' cy='330' r='28' fill='%237c6af7'/>
+              <text x='184' y='338' font-family='Arial' font-size='28' font-weight='bold' fill='white'>£</text>
+            </svg>
+          `),
+          sizes: '512x512',
+          type: 'image/svg+xml',
+          purpose: 'any maskable'
+        }
+      ],
+      shortcuts: [{ name: 'New Split', url: location.href + '?reset=1' }]
+    };
+
+    // Encode manifest as a blob URL and inject the <link rel="manifest"> tag
+    const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+    const manifestURL = URL.createObjectURL(manifestBlob);
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = manifestURL;
+    document.head.appendChild(manifestLink);
+
+    // Also inject apple-touch-icon using the same SVG
+    const appleIcon = document.createElement('link');
+    appleIcon.rel = 'apple-touch-icon';
+    appleIcon.href = manifestData.icons[0].src;
+    document.head.appendChild(appleIcon);
+
+    // ── Register Service Worker (inline via Blob URL) ────────────────
+    // The service worker script is defined as a string here, converted
+    // to a Blob, and registered — so no separate sw.js file is needed.
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE = 'splitbill-v1';
+
+        // On install: cache the page itself
+        self.addEventListener('install', e => {
+          e.waitUntil(
+            caches.open(CACHE).then(c => c.add(self.location.href.replace(/\\/sw-blob.*/, '')))
+          );
+          self.skipWaiting();
+        });
+
+        // On activate: clear old caches
+        self.addEventListener('activate', e => {
+          e.waitUntil(
+            caches.keys().then(keys =>
+              Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+            )
+          );
+          self.clients.claim();
+        });
+
+        // On fetch: cache-first strategy
+        self.addEventListener('fetch', e => {
+          if (e.request.method !== 'GET') return;
+          e.respondWith(
+            caches.match(e.request).then(cached => {
+              if (cached) return cached;
+              return fetch(e.request).then(res => {
+                if (!res || res.status !== 200 || res.type !== 'basic') return res;
+                const clone = res.clone();
+                caches.open(CACHE).then(c => c.put(e.request, clone));
+                return res;
+              }).catch(() => caches.match(e.request));
+            })
+          );
+        });
+      `;
+
+      const swBlob = new Blob([swCode], { type: 'application/javascript' });
+      const swURL = URL.createObjectURL(swBlob);
+
+      navigator.serviceWorker.register(swURL)
+        .then(() => console.log('[App] Service worker registered'))
+        .catch(e => console.warn('[App] SW failed:', e));
+    }
+
+
+    /* ================================================================
+       PART 2 — APP STATE
+       One object holds everything. Saved to localStorage on every change.
+    ================================================================ */
+
+    let state = {
+      currency: '£',       // selected currency symbol
+      bill: '',             // bill input value
+      tipMode: 'none',      // 'none' | '10' | '15' | '20' | 'custom'
+      customTip: '',        // custom tip % string
+      splitMode: 'even',    // 'even' | 'custom'
+      people: [
+        { id: uid(), name: '', amount: '' },
+        { id: uid(), name: '', amount: '' },
+      ],
+    };
+
+    /* ================================================================
+       PART 3 — UTILITIES
+    ================================================================ */
+
+    function uid() { return Math.random().toString(36).slice(2, 9); }
+    function getBill() { return Math.max(0, parseFloat(state.bill) || 0); }
+    function getTipPct() {
+      if (state.tipMode === 'none' || !state.tipMode) return 0;
+      if (state.tipMode === 'custom') return Math.max(0, parseFloat(state.customTip) || 0);
+      return parseFloat(state.tipMode) || 0;
+    }
+    function getTotal() { const b = getBill(); return b + b * (getTipPct() / 100); }
+    function fmt(n) { return state.currency + Math.abs(n).toFixed(2); }
+
+    /* ================================================================
+       PART 4 — LOCAL STORAGE
+    ================================================================ */
+
+    function saveState() {
+      try { localStorage.setItem('splitbill_state', JSON.stringify(state)); } catch (e) { }
+    }
+
+    function loadState() {
+      try {
+        const s = localStorage.getItem('splitbill_state');
+        if (s) state = { ...state, ...JSON.parse(s) };
+      } catch (e) { }
+    }
+
+    /* ================================================================
+       PART 5 — TOAST
+    ================================================================ */
+
+    let toastTimer;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    /* ================================================================
+       PART 6 — RENDER
+       Every state change calls render(), which redraws the whole UI.
+    ================================================================ */
+
+    function render() {
+      renderCurrency();
+      renderTip();
+      renderModeToggle();
+      renderPeopleList();
+      renderRemainingBar();
+    }
+
+    function renderCurrency() {
+      document.querySelectorAll('.currency-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.symbol === state.currency));
+      document.querySelectorAll('.currency-display').forEach(el =>
+        el.textContent = state.currency);
+    }
+
+    function renderTip() {
+      document.querySelectorAll('.tip-preset-btn').forEach(b => {
+        const active = (state.tipMode === 'custom' && b.dataset.tip === 'custom')
+          || b.dataset.tip === state.tipMode;
+        b.classList.toggle('active', active);
+      });
+      const isCustom = state.tipMode === 'custom';
+      document.getElementById('customTipGroup').style.display = isCustom ? 'flex' : 'none';
+      if (isCustom) document.getElementById('customTipInput').value = state.customTip;
+    }
+
+    function renderModeToggle() {
+      document.querySelectorAll('.mode-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.mode === state.splitMode));
+    }
+
+    function renderPeopleList() {
+      const list = document.getElementById('peopleList');
+      const isCustom = state.splitMode === 'custom';
+      const perPerson = state.people.length ? getTotal() / state.people.length : 0;
+      list.innerHTML = '';
+
+      state.people.forEach((person, i) => {
+        const row = document.createElement('div');
+        row.className = 'person-row';
+
+        // Name input
+        const ng = document.createElement('div');
+        ng.className = 'input-group'; ng.style.flex = '1';
+        const np = document.createElement('span');
+        np.className = 'input-prefix'; np.textContent = '👤'; np.style.fontSize = '0.9rem';
+        const ni = document.createElement('input');
+        ni.type = 'text'; ni.placeholder = `Person ${i + 1}`; ni.value = person.name;
+        ni.setAttribute('aria-label', `Name of person ${i + 1}`);
+        ni.addEventListener('input', e => { person.name = e.target.value; saveState(); renderRemainingBar(); });
+        ng.append(np, ni);
+
+        if (isCustom) {
+          // Custom amount input
+          const ag = document.createElement('div');
+          ag.className = 'input-group'; ag.style.width = '110px'; ag.style.flexShrink = '0';
+          const ap = document.createElement('span');
+          ap.className = 'input-prefix currency-display'; ap.textContent = state.currency;
+          const ai = document.createElement('input');
+          ai.type = 'number'; ai.placeholder = '0.00'; ai.value = person.amount;
+          ai.min = '0'; ai.step = '0.01'; ai.inputMode = 'decimal';
+          ai.setAttribute('aria-label', `Amount for person ${i + 1}`);
+          ai.addEventListener('input', e => { person.amount = e.target.value; saveState(); renderRemainingBar(); });
+          ag.append(ap, ai);
+          row.append(ng, ag);
+        } else {
+          // Even split badge
+          const badge = document.createElement('div');
+          badge.className = 'person-amount-badge';
+          badge.textContent = getBill() > 0 ? fmt(perPerson) : '—';
+          row.append(ng, badge);
+        }
+
+        // Delete button
+        const del = document.createElement('button');
+        del.className = 'btn-danger'; del.innerHTML = '✕';
+        del.disabled = state.people.length <= 2;
+        del.style.opacity = state.people.length <= 2 ? '0.3' : '1';
+        del.addEventListener('click', () => removePerson(person.id, row));
+        row.append(del);
+        list.appendChild(row);
+      });
+    }
+
+    function renderRemainingBar() {
+      const bar = document.getElementById('remainingBar');
+      if (state.splitMode !== 'custom') { bar.style.display = 'none'; return; }
+      bar.style.display = 'block';
+
+      const total = getTotal();
+      const assigned = state.people.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+      const remaining = total - assigned;
+      const pct = total > 0 ? Math.min((assigned / total) * 100, 100) : 0;
+
+      document.getElementById('assignedAmt').textContent = fmt(assigned);
+      document.getElementById('totalWithTip').textContent = fmt(total);
+
+      const remEl = document.getElementById('remainingAmt');
+      const fillEl = document.getElementById('progressFill');
+      const isOk = Math.abs(remaining) < 0.005;
+      const isOver = remaining < -0.005;
+
+      remEl.textContent = isOk ? '✓ Fully assigned'
+        : (isOver ? `-${fmt(Math.abs(remaining))} over` : fmt(remaining));
+      remEl.className = 'remaining-val' + (isOk ? ' ok' : isOver ? ' over' : '');
+      fillEl.className = 'progress-fill' + (isOk ? ' ok' : isOver ? ' over' : '');
+      fillEl.style.width = pct + '%';
+      bar.className = 'remaining-bar' + (isOk ? ' ok' : isOver ? ' over' : ' warn');
+    }
+
+    /* ================================================================
+       PART 7 — ADD / REMOVE PEOPLE
+    ================================================================ */
+
+    function addPerson() {
+      state.people.push({ id: uid(), name: '', amount: '' });
+      saveState(); render();
+      const rows = document.querySelectorAll('.person-row');
+      const last = rows[rows.length - 1];
+      if (last) { last.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); last.querySelector('input[type="text"]').focus(); }
+    }
+
+    function removePerson(id, rowEl) {
+      if (state.people.length <= 2) return;
+      rowEl.classList.add('removing');
+      rowEl.addEventListener('animationend', () => {
+        state.people = state.people.filter(p => p.id !== id);
+        saveState(); render();
+      }, { once: true });
+    }
+
+    /* ================================================================
+       PART 8 — CALCULATE
+    ================================================================ */
+
+    function calculate() {
+      const bill = getBill();
+      const tipPct = getTipPct();
+      const tip = bill * (tipPct / 100);
+      const total = bill + tip;
+
+      if (bill <= 0) { showToast('⚠️ Please enter a bill amount'); document.getElementById('billAmount').focus(); return; }
+      if (state.people.length < 2) { showToast('⚠️ Add at least 2 people'); return; }
+
+      // Fill blank names
+      state.people.forEach((p, i) => { if (!p.name.trim()) p.name = `Person ${i + 1}`; });
+
+      let shares;
+
+      if (state.splitMode === 'even') {
+        const per = total / state.people.length;
+        shares = state.people.map(p => ({
+          name: p.name,
+          base: bill / state.people.length,
+          tip: tip / state.people.length,
+          total: per
+        }));
+      } else {
+        const assigned = state.people.reduce((s, p) => s + (parseFloat(p.amount) || 0), 0);
+        if (Math.abs(total - assigned) > 0.01) {
+          const diff = Math.abs(total - assigned);
+          showToast(`⚠️ Amounts don't add up! ${fmt(diff)} ${total > assigned ? 'remaining' : 'over'}`);
+          return;
+        }
+        shares = state.people.map(p => {
+          const pt = parseFloat(p.amount) || 0;
+          const f = total > 0 ? pt / total : 0;
+          return { name: p.name, base: bill * f, tip: tip * f, total: pt };
+        });
+      }
+
+      showResults(total, tip, tipPct, shares);
+      saveState();
+    }
+
+    /* ================================================================
+       PART 9 — SHOW RESULTS
+    ================================================================ */
+
+    function showResults(total, tip, tipPct, shares) {
+      document.getElementById('resTotalWithTip').textContent = fmt(total);
+      document.getElementById('resTipAmount').textContent = tip > 0 ? `${fmt(tip)} (${tipPct}%)` : fmt(0);
+
+      const rowsEl = document.getElementById('resultRows');
+      rowsEl.innerHTML = '';
+
+      shares.forEach(share => {
+        const row = document.createElement('div'); row.className = 'result-row';
+        const left = document.createElement('div');
+        const name = document.createElement('div'); name.className = 'result-name'; name.textContent = share.name;
+        const bd = document.createElement('div'); bd.className = 'result-breakdown';
+        bd.textContent = tip > 0 ? `${fmt(share.base)} bill + ${fmt(share.tip)} tip` : `${fmt(share.base)} bill`;
+        left.append(name, bd);
+        const amt = document.createElement('div'); amt.className = 'result-amount'; amt.textContent = fmt(share.total);
+        row.append(left, amt);
+        rowsEl.appendChild(row);
+      });
+
+      const card = document.getElementById('resultsCard');
+      card.classList.add('visible');
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    /* ================================================================
+       PART 10 — COPY RESULTS
+    ================================================================ */
+
+    function copyResults() {
+      const total = document.getElementById('resTotalWithTip').textContent;
+      const tipLine = document.getElementById('resTipAmount').textContent;
+      let text = `🧾 Bill Split\nTotal: ${total}  |  Tip: ${tipLine}\n─────────────────\n`;
+
+      document.querySelectorAll('.result-row').forEach(row => {
+        const name = row.querySelector('.result-name').textContent;
+        const amount = row.querySelector('.result-amount').textContent;
+        const detail = row.querySelector('.result-breakdown').textContent;
+        text += `${name}: ${amount} (${detail})\n`;
+      });
+
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast('✅ Copied to clipboard!'))
+          .catch(() => fallbackCopy(text));
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); showToast('✅ Copied to clipboard!');
+    }
+
+    /* ================================================================
+       PART 11 — RESET
+    ================================================================ */
+
+    function reset() {
+      state = {
+        currency: state.currency,
+        bill: '',
+        tipMode: 'none',
+        customTip: '',
+        splitMode: 'even',
+        people: [
+          { id: uid(), name: '', amount: '' },
+          { id: uid(), name: '', amount: '' },
+        ],
+      };
+      document.getElementById('billAmount').value = '';
+      document.getElementById('resultsCard').classList.remove('visible');
+      saveState(); render(); showToast('🔄 Reset!');
+    }
+
+    /* ================================================================
+       PART 12 — EVENT LISTENERS
+    ================================================================ */
+
+    document.getElementById('billAmount')
+      .addEventListener('input', e => { state.bill = e.target.value; saveState(); renderPeopleList(); renderRemainingBar(); });
+
+    document.querySelectorAll('.currency-btn').forEach(b =>
+      b.addEventListener('click', () => { state.currency = b.dataset.symbol; saveState(); render(); }));
+
+    document.querySelectorAll('.tip-preset-btn').forEach(b =>
+      b.addEventListener('click', () => {
+        state.tipMode = b.dataset.tip === '0' ? 'none' : b.dataset.tip;
+        saveState(); renderTip(); renderPeopleList(); renderRemainingBar();
+      }));
+
+    document.getElementById('customTipInput')
+      .addEventListener('input', e => { state.customTip = e.target.value; saveState(); renderPeopleList(); renderRemainingBar(); });
+
+    document.querySelectorAll('.mode-btn').forEach(b =>
+      b.addEventListener('click', () => { state.splitMode = b.dataset.mode; saveState(); render(); }));
+
+    document.getElementById('addPersonBtn').addEventListener('click', addPerson);
+    document.getElementById('calculateBtn').addEventListener('click', calculate);
+    document.getElementById('copyBtn').addEventListener('click', copyResults);
+    document.getElementById('resetBtn').addEventListener('click', reset);
+
+    /* ================================================================
+       PART 13 — INSTALL PROMPT (Android Chrome)
+    ================================================================ */
+
+    let deferredInstallPrompt = null;
+    const installBanner = document.getElementById('installBanner');
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      installBanner.style.display = 'flex';
+    });
+
+    document.getElementById('installAccept').addEventListener('click', async () => {
+      installBanner.style.display = 'none';
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      }
+    });
+
+    document.getElementById('installDismiss').addEventListener('click', () =>
+      installBanner.style.display = 'none');
+
+    window.addEventListener('appinstalled', () => {
+      installBanner.style.display = 'none';
+      showToast('✅ App installed!');
+    });
+
+    /* ================================================================
+       PART 14 — BOOT
+       Load saved state, restore inputs, and do the first render.
+    ================================================================ */
+
+    loadState();
+    document.getElementById('billAmount').value = state.bill;
+
+    // Handle ?reset=1 shortcut
+    if (new URLSearchParams(location.search).get('reset') === '1') {
+      reset();
+      history.replaceState(null, '', location.pathname);
+    }
+
+    render();
+
+  </script>
+</body>
+
+</html>
